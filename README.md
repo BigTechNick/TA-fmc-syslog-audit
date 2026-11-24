@@ -1,13 +1,14 @@
 # FMC Syslog and Audit Log Add-on for Cisco Secure Firewall
 
-Splunk add-on `TA-fmc-syslog-audit`, version 1.0.0.
+Splunk add-on `TA-fmc-syslog-audit`, version 1.0.1.
 
-Search-time fields and CIM mappings for Cisco Secure Firewall Management Center (FMC) syslog: the FMC audit log (sourcetype cisco:fmc:audit: Authentication for logins, Change for configuration changes, deployments and rule updates) and correlation events (sourcetype cisco:fmc:syslog: Alerts). Not affiliated with Cisco.
+Search-time fields and CIM mappings for Cisco Secure Firewall Management Center (FMC) syslog: the FMC audit log (sourcetype cisco:fmc:audit: Authentication for logins, Change for configuration changes, deployments and rule updates) correlation events (sourcetype cisco:fmc:syslog: Alerts) and SSH logins to the FMC (cisco:fmc:syslog: Authentication). Not affiliated with Cisco.
 
 ## Layout
 
 - `TA-fmc-syslog-audit/`: the app exactly as shipped to Splunkbase (unpacked from the release package)
 - `tools/package.py`: builds the Splunkbase package and runs offline AppInspect-style checks
+- `tests/regex_test.py`: the extractions against made-up sample lines (`python3 tests/regex_test.py`)
 
 ## Build
 

@@ -5,7 +5,7 @@
     "id": {
       "group": null,
       "name": "TA-fmc-syslog-audit",
-      "version": "1.0.0"
+      "version": "1.0.1"
     },
     "author": [
       {
@@ -15,7 +15,7 @@
       }
     ],
     "releaseDate": null,
-    "description": "Search-time fields and CIM mappings for Cisco Secure Firewall Management Center (FMC) syslog: the audit log (cisco:fmc:audit, Authentication and Change) and correlation events (cisco:fmc:syslog, Alerts). Independent project, not affiliated with or endorsed by Cisco.",
+    "description": "Search-time fields and CIM mappings for Cisco Secure Firewall Management Center (FMC) syslog: the audit log (cisco:fmc:audit, Authentication and Change) correlation events (cisco:fmc:syslog, Alerts) and SSH logins to the FMC (cisco:fmc:syslog, Authentication). Independent project, not affiliated with or endorsed by Cisco.",
     "classification": {
       "intendedAudience": "Security",
       "categories": [

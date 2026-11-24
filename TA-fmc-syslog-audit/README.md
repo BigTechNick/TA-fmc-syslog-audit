@@ -1,14 +1,14 @@
 # FMC Syslog and Audit Log Add-on for Cisco Secure Firewall
 
-Version 1.0.0. App ID (folder name): `TA-fmc-syslog-audit`.
+Version 1.0.1. App ID (folder name): `TA-fmc-syslog-audit`.
 
 Search-time fields and CIM mappings for Cisco Secure Firewall Management Center
-(FMC) syslog: the FMC audit log and FMC correlation events.
+(FMC) syslog: the FMC audit log, FMC correlation events and SSH logins to the FMC.
 
 | Sourcetype | What it is | CIM data model |
 |---|---|---|
 | `cisco:fmc:audit` | FMC audit log sent to syslog | Authentication (logins), Change (configuration changes, deployments, rule updates) |
-| `cisco:fmc:syslog` | FMC system syslog | Alerts (correlation events) |
+| `cisco:fmc:syslog` | FMC system syslog | Alerts (correlation events), Authentication (SSH logins to the FMC) |
 
 > Independent project, not affiliated with or endorsed by Cisco. Cisco and
 > Cisco Secure Firewall are trademarks of Cisco Systems, Inc. See NOTICE.
@@ -51,7 +51,7 @@ FORMAT = sourcetype::cisco:fmc:audit
 
 For Enterprise Security, add the indexes to the CIM index macros:
 `cim_Authentication_indexes` and `cim_Change_indexes` (audit log index), and
-`cim_Alerts_indexes` (FMC syslog index).
+`cim_Alerts_indexes` and `cim_Authentication_indexes` (FMC syslog index).
 
 ## cisco:fmc:audit
 
@@ -93,6 +93,27 @@ tag `alert`.
 
 Correlation events with IPv6 addresses are not extracted.
 
+## cisco:fmc:syslog (SSH logins)
+
+SSH logins to the FMC's own operating system, from `sshd`, with or without a syslog PRI header:
+
+`<fmc> sshd[<pid>]: Failed password for invalid user <user> from <src> port <port> ssh2`
+`<fmc> sshd[<pid>]: Accepted publickey for <user> from <src> port <port> ssh2`
+
+| Field | Value |
+|---|---|
+| `action` | `failure` (Failed ...) or `success` (Accepted ...) |
+| `user`, `src`, `src_port` | Account, client address and port |
+| `authentication_method` | `password`, `keyboard-interactive/pam`, `publickey`, ... |
+| `reason` | `invalid user` when the account does not exist |
+| `dest`, `app`, `process_id` | The FMC (`host`), `sshd`, the sshd process |
+
+Only the `Failed ...` and `Accepted ...` lines are mapped: sshd writes several other lines for
+the same try (Invalid user, Postponed, pam_unix, PAM: Authentication failure, Connection reset,
+Disconnected), and mapping them too would count one try several times. Event type
+`cisco_fmc_sshd_authentication`, tag `authentication`. FMC web interface logins come from the
+audit log (`cisco:fmc:audit`).
+
 ## Event types and tags
 
 | Event type | Tags | CIM |
@@ -101,6 +122,7 @@ Correlation events with IPv6 addresses are not extracted.
 | `cisco_fmc_audit_authentication` | authentication | Authentication |
 | `cisco_fmc_audit_change` | change, network | Change (Network_Changes) |
 | `cisco_fmc_correlation` | alert | Alerts |
+| `cisco_fmc_sshd_authentication` | authentication | Authentication |
 
 ## Check after installing
 
@@ -115,7 +137,18 @@ index=<audit index> sourcetype="cisco:fmc:audit" earliest=-24h
 | stats count by All_Changes.action All_Changes.object_category
 ```
 
+```
+index=<FMC syslog index> sourcetype="cisco:fmc:syslog" sshd earliest=-7d
+| stats count by action authentication_method reason
+```
+
 ## Release notes
+
+### 1.0.1
+
+* SSH logins to the FMC (`sshd` in `cisco:fmc:syslog`) mapped to Authentication: one event per
+  try (`Failed ...` / `Accepted ...`), with user, src, src_port, authentication_method and reason.
+* No change to the audit log and correlation event mappings.
 
 ### 1.0.0
 
